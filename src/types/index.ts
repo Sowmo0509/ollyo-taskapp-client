@@ -1,9 +1,9 @@
 // TYPES
 export interface ITask {
   name: string;
-  desc: string;
+  description: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";
-  dueDate: string;
+  due_date: string;
 }
 
 // PROPS
