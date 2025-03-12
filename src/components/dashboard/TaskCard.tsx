@@ -53,7 +53,6 @@ const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
         <div className="w-full">
           <div className="flex items-center justify-between">
             <p className="text-lg font-medium leading-6 tracking-tight">{task.name}</p>
-
             <Tooltip text={task.user?.name || "Unknown User"}>
               <UserAvatar size="6" fontSize="0.7rem" name={task.user?.name || "XX"} />
             </Tooltip>
@@ -69,7 +68,7 @@ const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
 
           <div className="flex items-center gap-x-2">
             <StatusBadge text={task.status} variant={task.status as any} />
-            {user?.email == task.user?.email && (
+            {user?.email === task.user?.email && (
               <div className="flex items-center">
                 <Tooltip text="Delete task">
                   <button onClick={() => setShowDeleteConfirm(true)} className="text-gray-400 hover:text-red-500 transition-colors">
@@ -82,7 +81,13 @@ const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
         </div>
       </div>
 
-      <ConfirmDialog isOpen={showDeleteConfirm} title="Delete Task" message="Are you sure you want to delete this task? This action cannot be undone." onConfirm={handleDelete} onCancel={() => setShowDeleteConfirm(false)} />
+      <ConfirmDialog 
+        isOpen={showDeleteConfirm} 
+        title="Delete Task" 
+        message="Are you sure you want to delete this task? This action cannot be undone." 
+        onConfirm={handleDelete} 
+        onCancel={() => setShowDeleteConfirm(false)} 
+      />
     </>
   );
 };

@@ -14,11 +14,10 @@ const Dashboard = () => {
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const navigate = useNavigate();
 
-  // Update your fetchTasks function
   const fetchTasks = async () => {
     try {
       const token = useAuthStore.getState().token;
-      const response = await fetch("http://localhost:8000/api/tasks", {
+      const response = await fetch("http://localhost:8000/api/tasks?sort=asc", {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -30,8 +29,6 @@ const Dashboard = () => {
         const data = await response.json();
         setTasks(data);
       } else if (response.status === 401) {
-        // Handle unauthorized access
-        console.error("Unauthorized access, redirecting to login");
         navigate("/login");
       }
     } catch (error) {

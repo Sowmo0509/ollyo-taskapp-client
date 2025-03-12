@@ -3,10 +3,12 @@ export interface ITask {
   id?: number;
   name: string;
   description: string;
-  status: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   due_date: string;
-  user?: User;
-  user_id?: number;
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface User {

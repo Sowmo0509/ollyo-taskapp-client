@@ -14,11 +14,13 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const searchTasks = async (query: string) => {
+  const searchTasks = useCallback(async (query: string, sort: string) => {
     try {
+      setIsLoading(true);
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/search?q=${query}&status=${status}`, {
+      const response = await fetch(`http://localhost:8000/api/tasks/search?q=${query}&status=${status}&sort=${sort}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -32,43 +34,64 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
       }
     } catch (error) {
       console.error("Error searching tasks:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [status]);
 
   const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      searchTasks(query);
+    debounce((query: string, sort: string) => {
+      searchTasks(query, sort);
     }, 300),
-    []
+    [searchTasks]
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchTerm(query);
     if (query.trim()) {
-      debouncedSearch(query);
+      debouncedSearch(query, sortDirection);
     } else {
-      setFilteredTasks(tasks);
+      fetchSortedTasks();
     }
   };
 
-  const sortTasks = (tasksToSort: ITask[]) => {
-    return [...tasksToSort].sort((a, b) => {
-      const dateA = new Date(a.due_date).getTime();
-      const dateB = new Date(b.due_date).getTime();
-      return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
-    });
+  const fetchSortedTasks = async () => {
+    try {
+      setIsLoading(true);
+      const token = useAuthStore.getState().token;
+      const response = await fetch(`http://localhost:8000/api/tasks?status=${status}&sort=${sortDirection}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFilteredTasks(data);
+      }
+    } catch (error) {
+      console.error("Error fetching sorted tasks:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSort = () => {
+  const handleSort = async () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
+    if (searchTerm) {
+      await searchTasks(searchTerm, newDirection);
+    } else {
+      await fetchSortedTasks();
+    }
   };
 
   useEffect(() => {
-    const currentTasks = searchTerm ? filteredTasks : tasks;
-    setFilteredTasks(sortTasks(currentTasks));
-  }, [sortDirection, tasks, searchTerm]);
+    setFilteredTasks(tasks);
+  }, [tasks]);
 
   return (
     <div className="border rounded-lg bg-zinc-100/50 p-4 h-fit">
@@ -76,8 +99,8 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
             <h6 className="text-lg font-medium">{title}</h6>
-            <button onClick={handleSort} className="p-1 hover:bg-zinc-200 rounded-md transition-colors" title={`Sort by due date (${sortDirection === "asc" ? "ascending" : "descending"})`}>
-              {sortDirection === "asc" ? <IconSortAscending className="h-4 w-4 text-zinc-600" /> : <IconSortDescending className="h-4 w-4 text-zinc-600" />}
+            <button onClick={handleSort} disabled={isLoading} className={`p-1 rounded-md transition-colors ${isLoading ? "bg-zinc-100 cursor-not-allowed" : "hover:bg-zinc-200"}`} title={`Sort by due date (${sortDirection === "asc" ? "ascending" : "descending"})`}>
+              {sortDirection === "asc" ? <IconSortAscending className={`h-4 w-4 ${isLoading ? "text-zinc-400" : "text-zinc-600"}`} /> : <IconSortDescending className={`h-4 w-4 ${isLoading ? "text-zinc-400" : "text-zinc-600"}`} />}
             </button>
           </div>
           <div className="relative">
@@ -86,11 +109,7 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
           </div>
         </div>
         <hr />
-        {filteredTasks.length > 0 ? (
-          <TaskList tasks={filteredTasks} onTaskDeleted={onTaskDeleted} />
-        ) : (
-          <EmptyTaskList />
-        )}
+        {filteredTasks.length > 0 ? <TaskList tasks={filteredTasks} onTaskDeleted={onTaskDeleted} /> : <EmptyTaskList />}
       </div>
     </div>
   );
