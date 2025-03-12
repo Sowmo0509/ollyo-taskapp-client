@@ -16,28 +16,31 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isLoading, setIsLoading] = useState(false);
 
-  const searchTasks = useCallback(async (query: string, sort: string) => {
-    try {
-      setIsLoading(true);
-      const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/search?q=${query}&status=${status}&sort=${sort}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        credentials: "include",
-      });
+  const searchTasks = useCallback(
+    async (query: string, sort: string) => {
+      try {
+        setIsLoading(true);
+        const token = useAuthStore.getState().token;
+        const response = await fetch(`http://localhost:8000/api/tasks/search?q=${query}&status=${status}&sort=${sort}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          credentials: "include",
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setFilteredTasks(data);
+        if (response.ok) {
+          const data = await response.json();
+          setFilteredTasks(data);
+        }
+      } catch (error) {
+        console.error("Error searching tasks:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error searching tasks:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [status]);
+    },
+    [status]
+  );
 
   const debouncedSearch = useCallback(
     debounce((query: string, sort: string) => {
@@ -94,17 +97,17 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
   }, [tasks]);
 
   return (
-    <div className="border rounded-lg bg-zinc-100/50 p-4 h-fit">
+    <div className="border rounded-lg bg-zinc-100/50 p-3 sm:p-4 h-fit">
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-x-2">
-            <h6 className="text-lg font-medium">{title}</h6>
+            <h6 className="text-base sm:text-lg font-medium">{title}</h6>
             <button onClick={handleSort} disabled={isLoading} className={`p-1 rounded-md transition-colors ${isLoading ? "bg-zinc-100 cursor-not-allowed" : "hover:bg-zinc-200"}`} title={`Sort by due date (${sortDirection === "asc" ? "ascending" : "descending"})`}>
               {sortDirection === "asc" ? <IconSortAscending className={`h-4 w-4 ${isLoading ? "text-zinc-400" : "text-zinc-600"}`} /> : <IconSortDescending className={`h-4 w-4 ${isLoading ? "text-zinc-400" : "text-zinc-600"}`} />}
             </button>
           </div>
-          <div className="relative">
-            <input type="text" placeholder="Search tasks..." value={searchTerm} onChange={handleSearch} className="w-full pl-9 pr-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+          <div className="relative w-full sm:w-auto">
+            <input type="text" placeholder="Search tasks..." value={searchTerm} onChange={handleSearch} className="w-full sm:w-48 pl-9 pr-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             <IconSearch className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
           </div>
         </div>

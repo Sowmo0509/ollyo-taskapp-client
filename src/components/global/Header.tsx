@@ -24,12 +24,12 @@ const Header = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   return (
-    <div className="px-8 bg-white py-4 rounded-t-lg border-zinc-100 border-2 flex items-center justify-between">
-      <h4 className="font-medium tracking-tighter">Board</h4>
+    <div className="px-2 sm:px-4 md:px-8 bg-white py-4 rounded-t-lg border-zinc-100 border-2 flex items-center justify-between">
+      <h4 className="font-medium tracking-tighter text-base sm:text-lg">Board</h4>
 
       <div className="relative" ref={dropdownRef}>
         <div onClick={toggleDropdown} className="cursor-pointer">
-          <UserAvatar size="10" fontSize="1rem" name={user?.name || "XX"} />
+          <UserAvatar size="8 sm:10" fontSize="0.875rem sm:1rem" name={user?.name || "XX"} />
         </div>
         <UserDropdown isOpen={isDropdownOpen} />
       </div>
