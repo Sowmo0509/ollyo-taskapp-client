@@ -9,12 +9,14 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     // Basic validation
     if (!name || !email || !password || !confirmPassword) {
@@ -27,10 +29,40 @@ const Register = () => {
       return;
     }
 
-    // In a real app, you would send registration data to an API
-    // For this example, we'll just simulate a successful registration
-    login("fake-jwt-token");
-    navigate("/", { replace: true });
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/register", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          password_confirmation: confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Registration failed");
+        return;
+      }
+
+      // Registration successful
+      login(data.access_token);
+      navigate("/", { replace: true });
+    } catch (error) {
+      setError("An error occurred during registration");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,8 +74,8 @@ const Register = () => {
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative" role="alert">
+            <span className="block sm:inline text-sm">{error}.</span>
           </div>
         )}
 
@@ -76,8 +108,8 @@ const Register = () => {
           </div>
 
           <div>
-            <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Register
+            <button type="submit" disabled={isLoading} className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isLoading ? "Registering..." : "Register"}
             </button>
           </div>
 

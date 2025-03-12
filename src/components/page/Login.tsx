@@ -9,14 +9,35 @@ const Login = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // In a real app, you would validate credentials with an API
-    // For this example, we'll just simulate a successful login
-    login("fake-jwt-token");
-    navigate("/", { replace: true });
-  };
+    try {
+        const response = await fetch("http://localhost:8000/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                email,
+                password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Login failed");
+        }
+
+        login(data.access_token);
+        navigate("/", { replace: true });
+    } catch (error) {
+        console.error("Login error:", error);
+    }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 py-12 px-4 sm:px-6 lg:px-8">

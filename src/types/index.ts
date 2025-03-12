@@ -1,5 +1,6 @@
 // TYPES
 export interface ITask {
+  id?: number;
   name: string;
   description: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";

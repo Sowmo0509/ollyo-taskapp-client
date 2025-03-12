@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 
 interface CreateTaskFormProps {
@@ -17,11 +18,15 @@ const CreateTaskForm = ({ isOpen, onClose, onTaskCreated }: CreateTaskFormProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const token = useAuthStore.getState().token;
       const response = await fetch("http://localhost:8000/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
@@ -34,6 +39,11 @@ const CreateTaskForm = ({ isOpen, onClose, onTaskCreated }: CreateTaskFormProps)
         });
         onClose();
         onTaskCreated(); // Refresh the task list after creating a new task
+      } else if (response.status === 401) {
+        console.error("Unauthorized access");
+        // Handle unauthorized access
+      } else {
+        console.error("Error creating task:", await response.text());
       }
     } catch (error) {
       console.error("Error creating task:", error);

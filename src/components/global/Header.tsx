@@ -21,7 +21,7 @@ const Header = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   return (
-    <div className="px-8 bg-white py-4 rounded-t-lg border-2 flex items-center justify-between">
+    <div className="px-8 bg-white py-4 rounded-t-lg border-zinc-100 border-2 flex items-center justify-between">
       <h4 className="font-medium tracking-tighter">Board</h4>
 
       <div className="relative" ref={dropdownRef}>
