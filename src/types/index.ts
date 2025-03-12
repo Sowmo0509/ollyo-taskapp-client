@@ -6,6 +6,13 @@ export interface ITask {
   due_date: string;
 }
 
+export interface AuthState {
+  isAuthenticated: boolean;
+  token: string | null;
+  login: (token: string) => void;
+  logout: () => void;
+}
+
 // PROPS
 export interface ITaskSubContainerProps {
   title: string;

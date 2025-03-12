@@ -1,12 +1,6 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface AuthState {
-  isAuthenticated: boolean;
-  token: string | null;
-  login: (token: string) => void;
-  logout: () => void;
-}
+import { AuthState } from "@/types";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -17,7 +11,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ isAuthenticated: false, token: null }),
     }),
     {
-      name: 'auth-storage', // name of the item in localStorage
+      name: "auth-storage",
     }
   )
 );
