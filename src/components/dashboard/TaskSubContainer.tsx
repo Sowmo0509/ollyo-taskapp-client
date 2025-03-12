@@ -1,9 +1,9 @@
 import { ITask, ITaskSubContainerProps } from "@/types";
 import TaskCard from "@/components/dashboard/TaskCard";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import debounce from "lodash/debounce";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 
 interface TaskSubContainerProps extends ITaskSubContainerProps {
   onTaskDeleted: () => void;
@@ -13,6 +13,7 @@ interface TaskSubContainerProps extends ITaskSubContainerProps {
 const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubContainerProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const searchTasks = async (query: string) => {
     try {
@@ -51,18 +52,45 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
     }
   };
 
+  const sortTasks = (tasksToSort: ITask[]) => {
+    return [...tasksToSort].sort((a, b) => {
+      const dateA = new Date(a.due_date).getTime();
+      const dateB = new Date(b.due_date).getTime();
+      return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  };
+
+  const handleSort = () => {
+    const newDirection = sortDirection === "asc" ? "desc" : "asc";
+    setSortDirection(newDirection);
+  };
+
+  useEffect(() => {
+    const currentTasks = searchTerm ? filteredTasks : tasks;
+    setFilteredTasks(sortTasks(currentTasks));
+  }, [sortDirection, tasks, searchTerm]);
+
   return (
-    <div className="border rounded-lg bg-zinc-100/50 p-4">
+    <div className="border rounded-lg bg-zinc-100/50 p-4 h-fit">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h6 className="text-lg font-medium">{title}</h6>
+          <div className="flex items-center gap-x-2">
+            <h6 className="text-lg font-medium">{title}</h6>
+            <button onClick={handleSort} className="p-1 hover:bg-zinc-200 rounded-md transition-colors" title={`Sort by due date (${sortDirection === "asc" ? "ascending" : "descending"})`}>
+              {sortDirection === "asc" ? <IconSortAscending className="h-4 w-4 text-zinc-600" /> : <IconSortDescending className="h-4 w-4 text-zinc-600" />}
+            </button>
+          </div>
           <div className="relative">
             <input type="text" placeholder="Search tasks..." value={searchTerm} onChange={handleSearch} className="w-full pl-9 pr-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             <IconSearch className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
           </div>
         </div>
         <hr />
-        {(searchTerm ? filteredTasks : tasks).length > 0 ? <TaskList tasks={searchTerm ? filteredTasks : tasks} onTaskDeleted={onTaskDeleted} /> : <EmptyTaskList />}
+        {filteredTasks.length > 0 ? (
+          <TaskList tasks={filteredTasks} onTaskDeleted={onTaskDeleted} />
+        ) : (
+          <EmptyTaskList />
+        )}
       </div>
     </div>
   );
