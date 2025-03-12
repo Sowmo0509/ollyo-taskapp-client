@@ -5,6 +5,7 @@ import { IconClock, IconTrash } from "@tabler/icons-react";
 import Tooltip from "../global/Tooltip";
 import { useAuthStore } from "@/store/authStore";
 import ConfirmDialog from "../global/ConfirmDialog";
+import UserAvatar from "../global/UserAvatar";
 
 interface TaskCardProps {
   task: ITask;
@@ -12,6 +13,7 @@ interface TaskCardProps {
 }
 
 const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
+  const user = useAuthStore((state) => state.user);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const formatDate = (dateString: string) => {
@@ -52,8 +54,8 @@ const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
           <div className="flex items-center justify-between">
             <p className="text-lg font-medium leading-6 tracking-tight">{task.name}</p>
 
-            <Tooltip text="John Doe">
-              <img className="w-5 h-5 rounded-full object-cover cursor-pointer" src="https://static.vecteezy.com/system/resources/thumbnails/023/307/453/small/ai-generative-a-man-on-solid-color-backgroundshoot-with-surprise-facial-expression-photo.jpg" alt="User avatar" />
+            <Tooltip text={task.user?.name || "Unknown User"}>
+              <UserAvatar size="6" fontSize="0.7rem" name={task.user?.name || "XX"} />
             </Tooltip>
           </div>
         </div>
@@ -66,14 +68,16 @@ const TaskCard = ({ task, onTaskDeleted }: TaskCardProps) => {
           </div>
 
           <div className="flex items-center gap-x-2">
-            <StatusBadge text={task.status} variant={task.status} />
-            <div className="mt-0.5">
-              <Tooltip text="Delete task">
-                <button onClick={() => setShowDeleteConfirm(true)} className="text-gray-400 hover:text-red-500 transition-colors">
-                  <IconTrash size={20} />
-                </button>
-              </Tooltip>
-            </div>
+            <StatusBadge text={task.status} variant={task.status as any} />
+            {user?.email == task.user?.email && (
+              <div className="flex items-center">
+                <Tooltip text="Delete task">
+                  <button onClick={() => setShowDeleteConfirm(true)} className="text-gray-400 hover:text-red-500 transition-colors">
+                    <IconTrash className="size-4" />
+                  </button>
+                </Tooltip>
+              </div>
+            )}
           </div>
         </div>
       </div>

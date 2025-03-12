@@ -1,6 +1,5 @@
 import { ITask, ITaskSubContainerProps } from "@/types";
 import TaskCard from "@/components/dashboard/TaskCard";
-import { useAuthStore } from "@/store/authStore";
 
 interface TaskSubContainerProps extends ITaskSubContainerProps {
   onTaskDeleted: () => void;
@@ -20,26 +19,10 @@ export default TaskSubContainer;
 
 const EmptyTaskList = () => <div className="text-center py-4 flex h-full justify-center items-center text-zinc-500">No task here!</div>;
 
-const TaskList = ({ tasks, onTaskDeleted }: { tasks: ITask[], onTaskDeleted: () => void }) => (
+const TaskList = ({ tasks, onTaskDeleted }: { tasks: ITask[]; onTaskDeleted: () => void }) => (
   <div className="flex flex-col gap-y-3">
     {tasks.map((task: ITask, i: number) => (
       <TaskCard task={task} key={i} onTaskDeleted={onTaskDeleted} />
     ))}
   </div>
 );
-
-const fetchTasks = async () => {
-  try {
-    const token = useAuthStore.getState().token;
-    const response = await fetch("http://localhost:8000/api/tasks", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-      credentials: "include",
-    });
-    // ... rest of your code
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-  }
-};

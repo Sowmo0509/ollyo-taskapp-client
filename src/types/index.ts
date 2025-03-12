@@ -3,14 +3,22 @@ export interface ITask {
   id?: number;
   name: string;
   description: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
+  status: string;
   due_date: string;
+  user?: User;
+  user_id?: number;
+}
+
+export interface User {
+  name: string;
+  email: string;
 }
 
 export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
-  login: (token: string) => void;
+  user: User | null;
+  login: (token: string, user: User) => void;
   logout: () => void;
 }
 

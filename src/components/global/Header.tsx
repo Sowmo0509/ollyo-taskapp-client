@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import UserDropdown from "@/components/global/UserDropdown";
+import UserAvatar from "@/components/global/UserAvatar";
+import { useAuthStore } from "@/store/authStore";
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -25,8 +28,9 @@ const Header = () => {
       <h4 className="font-medium tracking-tighter">Board</h4>
 
       <div className="relative" ref={dropdownRef}>
-        <img className="w-10 h-10 rounded-full object-cover cursor-pointer" src="https://static.vecteezy.com/system/resources/thumbnails/023/307/453/small/ai-generative-a-man-on-solid-color-backgroundshoot-with-surprise-facial-expression-photo.jpg" alt="User avatar" onClick={toggleDropdown} />
-
+        <div onClick={toggleDropdown} className="cursor-pointer">
+          <UserAvatar size="10" fontSize="1rem" name={user?.name || "XX"} />
+        </div>
         <UserDropdown isOpen={isDropdownOpen} />
       </div>
     </div>

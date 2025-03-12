@@ -32,14 +32,15 @@ const Register = () => {
     setIsLoading(true);
 
     try {
+      // First, register the user
       const response = await fetch("http://localhost:8000/api/register", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-Requested-With": "XMLHttpRequest"
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
+        credentials: "include",
         body: JSON.stringify({
           name,
           email,
@@ -51,15 +52,34 @@ const Register = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Registration failed");
-        return;
+        throw new Error(data.message || "Registration failed");
       }
 
-      // Registration successful
-      login(data.access_token);
+      // After registration, fetch user data
+      const userResponse = await fetch("http://localhost:8000/api/user", {
+        headers: {
+          Authorization: `Bearer ${data.access_token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+      });
+
+      const userData = await userResponse.json();
+
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      // Now we have both token and user data
+      login(data.access_token, {
+        name: userData.name,
+        email: userData.email,
+      });
+
       navigate("/", { replace: true });
-    } catch (error) {
-      setError("An error occurred during registration");
+    } catch (error: any) {
+      setError(error.message || "An error occurred during registration");
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
