@@ -1,13 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TaskSubContainer from "@/components/dashboard/TaskSubContainer";
 import CreateTaskForm from "@/components/dashboard/CreateTaskForm";
 import { ITask } from "@/types";
 import { useAuthStore } from "@/store/authStore";
+import debounce from "lodash/debounce";
+import { IconSearch } from "@tabler/icons-react";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const navigate = useNavigate();
 
   // Update your fetchTasks function
@@ -39,23 +43,80 @@ const Dashboard = () => {
     fetchTasks();
   }, []);
 
+  const searchTasks = async (query: string) => {
+    try {
+      const token = useAuthStore.getState().token;
+      const response = await fetch(`http://localhost:8000/api/tasks/global-search?q=${query}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFilteredTasks(data);
+      }
+    } catch (error) {
+      console.error("Error searching tasks:", error);
+    }
+  };
+
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      searchTasks(query);
+    }, 300),
+    []
+  );
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchTerm(query);
+    if (query.trim()) {
+      debouncedSearch(query);
+    } else {
+      setFilteredTasks([]);
+    }
+  };
+
   // Filter tasks by status
-  const todoTasks = tasks.filter((task) => task.status === "TODO");
-  const inProgressTasks = tasks.filter((task) => task.status === "IN_PROGRESS");
-  const doneTasks = tasks.filter((task) => task.status === "DONE");
+  const getTasksByStatus = (status: string) => {
+    if (searchTerm) {
+      return filteredTasks.filter((task) => task.status === status);
+    }
+    return tasks.filter((task) => task.status === status);
+  };
+
+  const todoTasks = getTasksByStatus("TODO");
+  const inProgressTasks = getTasksByStatus("IN_PROGRESS");
+  const doneTasks = getTasksByStatus("DONE");
 
   return (
     <div className="px-8 py-4 rounded-b-lg border-zinc-100 border-x-2 border-b-2">
-      <div className="mb-6 flex justify-end">
-        <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <div className="mb-6 flex justify-between items-center">
+        <div className="relative w-80">
+          <input
+            type="text"
+            placeholder="Search all tasks..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full pl-9 pr-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <IconSearch className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
           Create New Task
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-x-8 bg-white p-4 rounded-lg">
-        <TaskSubContainer title="To Do" tasks={todoTasks} onTaskDeleted={fetchTasks} />
-        <TaskSubContainer title="In Progress" tasks={inProgressTasks} onTaskDeleted={fetchTasks} />
-        <TaskSubContainer title="Done" tasks={doneTasks} onTaskDeleted={fetchTasks} />
+        <TaskSubContainer title="To Do" tasks={todoTasks} status="TODO" onTaskDeleted={fetchTasks} />
+        <TaskSubContainer title="In Progress" tasks={inProgressTasks} status="IN_PROGRESS" onTaskDeleted={fetchTasks} />
+        <TaskSubContainer title="Done" tasks={doneTasks} status="DONE" onTaskDeleted={fetchTasks} />
       </div>
 
       <CreateTaskForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTaskCreated={fetchTasks} />
