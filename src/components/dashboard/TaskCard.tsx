@@ -74,6 +74,12 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange }: TaskCardP
   };
 
   const handleEdit = () => {
+    // Update this to ensure we have the correct date format when editing
+    setEditData({
+      name: task.name,
+      description: task.description,
+      due_date: new Date(task.due_date).toISOString().split('T')[0], // Properly format date for input
+    });
     setIsEditing(true);
   };
 
@@ -82,7 +88,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange }: TaskCardP
     setEditData({
       name: task.name,
       description: task.description,
-      due_date: task.due_date.split('T')[0],
+      due_date: new Date(task.due_date).toISOString().split('T')[0], // Use same format here
     });
     setErrors({});
   };
