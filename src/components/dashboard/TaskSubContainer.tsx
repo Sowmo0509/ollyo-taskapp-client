@@ -161,7 +161,9 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status, onTaskStat
   return (
     <div 
       ref={containerRef} 
-      className={`border rounded-lg ${isOver ? 'bg-indigo-50' : 'bg-zinc-100/50'} p-3 sm:p-4 h-fit transition-colors`}
+      className={`border rounded-lg 
+        ${isOver ? 'bg-indigo-50 scale-[1.02] shadow-md' : 'bg-zinc-100/50'} 
+        p-3 sm:p-4 h-fit transition-all duration-300 ease-in-out`}
     >
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3 sm:gap-0">
