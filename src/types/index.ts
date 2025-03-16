@@ -1,6 +1,6 @@
 // TYPES
 export interface ITask {
-  id?: number;
+  id: number; // Make sure id is required, not optional
   name: string;
   description: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";

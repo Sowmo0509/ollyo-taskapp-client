@@ -6,6 +6,8 @@ import { ITask } from "@/types";
 import { useAuthStore } from "@/store/authStore";
 import debounce from "lodash/debounce";
 import { IconSearch } from "@tabler/icons-react";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,6 +91,30 @@ const Dashboard = () => {
   const inProgressTasks = getTasksByStatus("IN_PROGRESS");
   const doneTasks = getTasksByStatus("DONE");
 
+  const handleTaskStatusChange = async (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => {
+    try {
+      const token = useAuthStore.getState().token;
+      const response = await fetch(`http://localhost:8000/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        fetchTasks();
+      } else {
+        console.error("Error updating task status:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
+  };
+
   return (
     <div className="px-2 sm:px-4 md:px-8 py-4 rounded-b-lg border-zinc-100 border-x-2 border-b-2">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
@@ -101,11 +127,31 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8 bg-white p-0 lg:p-4 rounded-lg">
-        <TaskSubContainer title="To Do" tasks={todoTasks} onTaskDeleted={fetchTasks} status="TODO" />
-        <TaskSubContainer title="In Progress" tasks={inProgressTasks} onTaskDeleted={fetchTasks} status="IN_PROGRESS" />
-        <TaskSubContainer title="Done" tasks={doneTasks} onTaskDeleted={fetchTasks} status="DONE" />
-      </div>
+      <DndProvider backend={HTML5Backend}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 bg-white p-4 rounded-lg">
+          <TaskSubContainer 
+            title="To Do" 
+            tasks={todoTasks} 
+            onTaskDeleted={fetchTasks} 
+            status="TODO" 
+            onTaskStatusChange={handleTaskStatusChange}
+          />
+          <TaskSubContainer 
+            title="In Progress" 
+            tasks={inProgressTasks} 
+            onTaskDeleted={fetchTasks} 
+            status="IN_PROGRESS" 
+            onTaskStatusChange={handleTaskStatusChange}
+          />
+          <TaskSubContainer 
+            title="Done" 
+            tasks={doneTasks} 
+            onTaskDeleted={fetchTasks} 
+            status="DONE" 
+            onTaskStatusChange={handleTaskStatusChange}
+          />
+        </div>
+      </DndProvider>
 
       <CreateTaskForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTaskCreated={fetchTasks} />
     </div>

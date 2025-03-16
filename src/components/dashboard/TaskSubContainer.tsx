@@ -1,20 +1,25 @@
 import { ITask, ITaskSubContainerProps } from "@/types";
 import TaskCard from "@/components/dashboard/TaskCard";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/authStore";
 import debounce from "lodash/debounce";
 import { IconSearch, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
+import { useDrop } from 'react-dnd';
 
 interface TaskSubContainerProps extends ITaskSubContainerProps {
   onTaskDeleted: () => void;
   status: "TODO" | "IN_PROGRESS" | "DONE";
+  onTaskStatusChange: (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => Promise<void>;
 }
 
-const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubContainerProps) => {
+const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status, onTaskStatusChange }: TaskSubContainerProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Add this line to define the containerRef
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const searchTasks = useCallback(
     async (query: string, sort: string) => {
@@ -96,8 +101,68 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
     setFilteredTasks(tasks);
   }, [tasks]);
 
+  const moveTask = async (draggedId: number, hoverId: number) => {
+    // Don't do anything if the task is dropped on itself
+    if (draggedId === hoverId) return;
+
+    try {
+      // Find the dragged task and the task it's being dropped on
+      const draggedTaskIndex = filteredTasks.findIndex(task => task.id === draggedId);
+      const hoverTaskIndex = filteredTasks.findIndex(task => task.id === hoverId);
+      
+      if (draggedTaskIndex === -1 || hoverTaskIndex === -1) return;
+      
+      // Create a new array with the updated order
+      const newTasks = [...filteredTasks];
+      const [draggedTask] = newTasks.splice(draggedTaskIndex, 1);
+      newTasks.splice(hoverTaskIndex, 0, draggedTask);
+      
+      // Update the state immediately for a responsive UI
+      setFilteredTasks(newTasks);
+      
+      // Send the update to the server
+      const token = useAuthStore.getState().token;
+      await fetch(`http://localhost:8000/api/tasks/${draggedId}/move`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ 
+          target_position: hoverTaskIndex,
+          status: status 
+        }),
+      });
+    } catch (error) {
+      console.error("Error moving task:", error);
+      // Revert to original order if there's an error
+      setFilteredTasks([...tasks]);
+    }
+  };
+
+  const [{ isOver }, dropRef] = useDrop({
+    accept: 'TASK',
+    drop: (item: { id: number, status: string }) => {
+      if (item.status !== status) {
+        // If coming from a different column, change status
+        onTaskStatusChange(item.id, status);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  });
+
+  // Connect the drop ref to our element ref
+  dropRef(containerRef);
+
   return (
-    <div className="border rounded-lg bg-zinc-100/50 p-3 sm:p-4 h-fit">
+    <div 
+      ref={containerRef} 
+      className={`border rounded-lg ${isOver ? 'bg-indigo-50' : 'bg-zinc-100/50'} p-3 sm:p-4 h-fit transition-colors`}
+    >
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-x-2">
@@ -112,7 +177,17 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status }: TaskSubC
           </div>
         </div>
         <hr />
-        {filteredTasks.length > 0 ? <TaskList tasks={filteredTasks} onTaskDeleted={onTaskDeleted} /> : <EmptyTaskList />}
+        {filteredTasks.length > 0 ? (
+          <TaskList 
+            tasks={filteredTasks} 
+            onTaskDeleted={onTaskDeleted} 
+            status={status}
+            onTaskStatusChange={onTaskStatusChange}
+            onMoveTask={moveTask}
+          />
+        ) : (
+          <EmptyTaskList />
+        )}
       </div>
     </div>
   );
@@ -122,10 +197,24 @@ export default TaskSubContainer;
 
 const EmptyTaskList = () => <div className="text-center py-4 flex h-full justify-center items-center text-zinc-500">No task here!</div>;
 
-const TaskList = ({ tasks, onTaskDeleted }: { tasks: ITask[]; onTaskDeleted: () => void }) => (
+const TaskList = ({ tasks, onTaskDeleted, status, onTaskStatusChange, onMoveTask }: { 
+  tasks: ITask[]; 
+  onTaskDeleted: () => void;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  onTaskStatusChange: (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => Promise<void>;
+  onMoveTask: (draggedId: number, hoverId: number) => Promise<void>;
+}) => (
   <div className="flex flex-col gap-y-3">
     {tasks.map((task: ITask, i: number) => (
-      <TaskCard task={task} key={i} onTaskDeleted={onTaskDeleted} />
+      <TaskCard 
+        key={task.id || i} 
+        task={task} 
+        onTaskDeleted={onTaskDeleted}
+        status={status}
+        onTaskStatusChange={onTaskStatusChange}
+        onMoveTask={onMoveTask}
+        index={i}
+      />
     ))}
   </div>
 );
