@@ -29,7 +29,7 @@ const Header = () => {
 
       <div className="relative" ref={dropdownRef}>
         <div onClick={toggleDropdown} className="cursor-pointer">
-          <UserAvatar size="8 sm:10" fontSize="0.875rem sm:1rem" name={user?.name || "XX"} />
+          <UserAvatar size={32} fontSize="0.875rem sm:1rem" name={user?.name || "XX"} />
         </div>
         <UserDropdown isOpen={isDropdownOpen} />
       </div>
