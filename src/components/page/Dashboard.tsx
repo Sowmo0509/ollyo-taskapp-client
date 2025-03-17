@@ -6,9 +6,9 @@ import { ITask } from "@/types";
 import { useAuthStore } from "@/store/authStore";
 import debounce from "lodash/debounce";
 import { IconSearch } from "@tabler/icons-react";
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { usePusher } from '@/hooks/usePusher';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { usePusher } from "@/hooks/usePusher";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,7 +93,7 @@ const Dashboard = () => {
   const doneTasks = getTasksByStatus("DONE");
 
   // Add real-time updates for tasks
-  usePusher('tasks', 'task.updated', (data) => {
+  usePusher("tasks", "task.updated", (data) => {
     fetchTasks(); // Refresh tasks when we receive an update
   });
 
@@ -136,27 +136,9 @@ const Dashboard = () => {
 
       <DndProvider backend={HTML5Backend}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 bg-white p-4 rounded-lg">
-          <TaskSubContainer 
-            title="To Do" 
-            tasks={todoTasks} 
-            onTaskDeleted={fetchTasks} 
-            status="TODO" 
-            onTaskStatusChange={handleTaskStatusChange}
-          />
-          <TaskSubContainer 
-            title="In Progress" 
-            tasks={inProgressTasks} 
-            onTaskDeleted={fetchTasks} 
-            status="IN_PROGRESS" 
-            onTaskStatusChange={handleTaskStatusChange}
-          />
-          <TaskSubContainer 
-            title="Done" 
-            tasks={doneTasks} 
-            onTaskDeleted={fetchTasks} 
-            status="DONE" 
-            onTaskStatusChange={handleTaskStatusChange}
-          />
+          <TaskSubContainer title="To Do" tasks={todoTasks} onTaskDeleted={fetchTasks} status="TODO" onTaskStatusChange={handleTaskStatusChange} />
+          <TaskSubContainer title="In Progress" tasks={inProgressTasks} onTaskDeleted={fetchTasks} status="IN_PROGRESS" onTaskStatusChange={handleTaskStatusChange} />
+          <TaskSubContainer title="Done" tasks={doneTasks} onTaskDeleted={fetchTasks} status="DONE" onTaskStatusChange={handleTaskStatusChange} />
         </div>
       </DndProvider>
 

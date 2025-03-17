@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import pusher from '@/services/pusher';
+import { useEffect } from "react";
+import pusher from "@/services/pusher";
 
 type PusherCallback = (data: any) => void;
 

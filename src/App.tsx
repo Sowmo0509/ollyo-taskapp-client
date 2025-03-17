@@ -4,6 +4,7 @@ import Dashboard from "./components/page/Dashboard";
 import Login from "./components/page/Login";
 import Register from "./components/page/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Test from "./components/page/Test";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/test" element={<Test />} />
         <Route
           path="/"
           element={
