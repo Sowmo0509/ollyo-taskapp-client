@@ -96,9 +96,14 @@ const Dashboard = () => {
   usePusher("tasks", "task.updated", (data) => {
     fetchTasks(); // Refresh tasks when we receive an update
   });
-  // Add real-time updates for tasks
+  
   usePusher("tasks", "task.created", (data) => {
     fetchTasks(); // Refresh tasks when we receive an update
+  });
+
+  // Add listener for task deletion
+  usePusher("tasks", "task.deleted", (data) => {
+    fetchTasks(); // Refresh tasks when a task is deleted
   });
 
   const handleTaskStatusChange = async (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => {
