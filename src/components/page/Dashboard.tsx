@@ -8,6 +8,7 @@ import debounce from "lodash/debounce";
 import { IconSearch } from "@tabler/icons-react";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { usePusher } from '@/hooks/usePusher';
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,6 +92,11 @@ const Dashboard = () => {
   const inProgressTasks = getTasksByStatus("IN_PROGRESS");
   const doneTasks = getTasksByStatus("DONE");
 
+  // Add real-time updates for tasks
+  usePusher('tasks', 'task.updated', (data) => {
+    fetchTasks(); // Refresh tasks when we receive an update
+  });
+
   const handleTaskStatusChange = async (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => {
     try {
       const token = useAuthStore.getState().token;
@@ -106,7 +112,8 @@ const Dashboard = () => {
       });
 
       if (response.ok) {
-        fetchTasks();
+        // No need to call fetchTasks here as the broadcast event will trigger it
+        // fetchTasks() is removed as it will be called by the Pusher event
       } else {
         console.error("Error updating task status:", await response.text());
       }
