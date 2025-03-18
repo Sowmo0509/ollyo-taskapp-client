@@ -18,17 +18,17 @@ interface TaskCardProps {
   index?: number;
 }
 
-const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask, index }: TaskCardProps) => {
+const TaskCard = ({ task, onTaskDeleted, status, onMoveTask, index }: TaskCardProps) => {
   const user = useAuthStore((state) => state.user);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  
+
   // Editing state
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     name: task.name,
     description: task.description,
-    due_date: task.due_date.split('T')[0], // Format date for input
+    due_date: task.due_date.split("T")[0],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -46,17 +46,17 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
     accept: "TASK",
     hover: (item: { id: number; status: string; index: number }) => {
       if (!onMoveTask) return;
-      
-      // Don't replace items with themselves
+
+      // Don't replace items within themselves
       if (item.id === task.id) return;
-      
+
       // Only handle items in the same column
       if (item.status !== status) return;
-      
-      // Call the onMoveTask function to reorder tasks
+
+      // Calling the onMoveTask fn to reorder tasks
       onMoveTask(item.id, task.id);
-      
-      // Update the index of the dragged item
+
+      // Update the index of the dragged items
       item.index = index!;
     },
     collect: (monitor) => ({
@@ -70,9 +70,6 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
     dropRef(node);
     cardRef.current = node;
   };
-
-  // Replace the dragRef(cardRef) line with our combined ref
-  // dragRef(cardRef); - Remove this line
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -106,11 +103,11 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
   };
 
   const handleEdit = () => {
-    // Update this to ensure we have the correct date format when editing
+    // Ensuring I have the correct date format when editing
     setEditData({
       name: task.name,
       description: task.description,
-      due_date: new Date(task.due_date).toISOString().split("T")[0], // Properly format date for input
+      due_date: new Date(task.due_date).toISOString().split("T")[0],
     });
     setIsEditing(true);
   };
@@ -120,7 +117,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
     setEditData({
       name: task.name,
       description: task.description,
-      due_date: new Date(task.due_date).toISOString().split("T")[0], // Use same format here
+      due_date: new Date(task.due_date).toISOString().split("T")[0],
     });
     setErrors({});
   };
@@ -144,7 +141,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
       // Validate all fields
       const validationResult = taskSchema.safeParse({
         ...editData,
-        status: task.status, // Keep the current status
+        status: task.status,
       });
 
       if (!validationResult.success) {
@@ -174,7 +171,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
 
       if (response.ok) {
         setIsEditing(false);
-        onTaskDeleted(); // Refresh the task list
+        onTaskDeleted();
       } else {
         console.error("Error updating task:", await response.text());
       }
@@ -187,14 +184,13 @@ const TaskCard = ({ task, onTaskDeleted, status, onTaskStatusChange, onMoveTask,
 
   return (
     <>
-      <div 
-        ref={ref} 
+      <div
+        ref={ref}
         className={`bg-white p-4 shadow-lg shadow-zinc-300/40 rounded-lg items-start flex flex-col gap-2 
           ${isDragging ? "opacity-50 scale-105 rotate-1 shadow-xl z-10" : "opacity-100"} 
           ${isOver ? "border-2 border-indigo-300 bg-indigo-50" : ""}
           ${isEditing ? "cursor-default" : "cursor-move"}
-          transition-all duration-300 ease-in-out`}
-      >
+          transition-all duration-300 ease-in-out`}>
         {isEditing ? (
           // Edit mode
           <>

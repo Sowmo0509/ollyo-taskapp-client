@@ -17,7 +17,6 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // First, get the token
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: {
@@ -38,7 +37,6 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // After getting token, fetch user data
       const userResponse = await fetch("http://localhost:8000/api/user", {
         headers: {
           Authorization: `Bearer ${data.access_token}`,
@@ -53,7 +51,6 @@ const Login = () => {
         throw new Error("Failed to fetch user data");
       }
 
-      // Now we have both token and user data
       login(data.access_token, {
         name: userData.name,
         email: userData.email,

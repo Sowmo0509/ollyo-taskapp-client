@@ -18,7 +18,6 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    // Basic validation
     if (!name || !email || !password || !confirmPassword) {
       setError("All fields are required");
       return;
@@ -32,7 +31,6 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      // First, register the user
       const response = await fetch("http://localhost:8000/api/register", {
         method: "POST",
         headers: {
@@ -55,7 +53,6 @@ const Register = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      // After registration, fetch user data
       const userResponse = await fetch("http://localhost:8000/api/user", {
         headers: {
           Authorization: `Bearer ${data.access_token}`,
@@ -70,7 +67,6 @@ const Register = () => {
         throw new Error("Failed to fetch user data");
       }
 
-      // Now we have both token and user data
       login(data.access_token, {
         name: userData.name,
         email: userData.email,
