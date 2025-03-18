@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "pm2 start dist --name taskapp-client"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.31.0",

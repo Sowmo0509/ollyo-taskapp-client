@@ -2,19 +2,34 @@ import { useState, useEffect } from "react";
 import TaskSubContainer from "@/components/dashboard/TaskSubContainer";
 import CreateTaskForm from "@/components/dashboard/CreateTaskForm";
 import SearchBar from "@/components/dashboard/SearchBar";
+import FeatureIntroModal from "@/components/dashboard/FeatureIntroModal";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useTasks } from "@/hooks/useTasks";
 import { useTaskSearch } from "@/hooks/useTaskSearch";
 
+const FEATURE_INTRO_SHOWN = 'feature_intro_shown';
+
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFeatureIntro, setShowFeatureIntro] = useState(false);
   const { tasks, fetchTasks, handleTaskStatusChange } = useTasks();
   const { searchTerm, filteredTasks, handleSearch } = useTaskSearch();
 
   useEffect(() => {
     fetchTasks();
+    
+    // Check if feature intro has been shown before
+    const hasSeenIntro = localStorage.getItem(FEATURE_INTRO_SHOWN);
+    if (!hasSeenIntro) {
+      setShowFeatureIntro(true);
+    }
   }, []);
+
+  const handleFeatureIntroClose = () => {
+    setShowFeatureIntro(false);
+    localStorage.setItem(FEATURE_INTRO_SHOWN, 'true');
+  };
 
   // Filtering tasks by status
   const getTasksByStatus = (status: string) => {
@@ -46,6 +61,7 @@ const Dashboard = () => {
       </DndProvider>
 
       <CreateTaskForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTaskCreated={fetchTasks} />
+      <FeatureIntroModal isOpen={showFeatureIntro} onClose={handleFeatureIntroClose} />
     </div>
   );
 };
