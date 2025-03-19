@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 80",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "pm2 start dist --name taskapp-client"
+    "start": "pm2 start npm --name taskapp-client -- run dev"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.31.0",
