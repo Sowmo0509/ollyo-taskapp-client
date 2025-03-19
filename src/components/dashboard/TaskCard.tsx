@@ -82,7 +82,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onMoveTask, index }: TaskCardPr
   const handleDelete = async () => {
     try {
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/${task.id}`, {
+      const response = await fetch(`http://82.25.105.116:8000/api/tasks/${task.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -155,7 +155,7 @@ const TaskCard = ({ task, onTaskDeleted, status, onMoveTask, index }: TaskCardPr
       }
 
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/${task.id}`, {
+      const response = await fetch(`http://82.25.105.116:8000/api/tasks/${task.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

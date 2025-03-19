@@ -31,7 +31,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
+      const response = await fetch("http://82.25.105.116:8000/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +53,7 @@ const Register = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      const userResponse = await fetch("http://localhost:8000/api/user", {
+      const userResponse = await fetch("http://82.25.105.116:8000/api/user", {
         headers: {
           Authorization: `Bearer ${data.access_token}`,
           Accept: "application/json",

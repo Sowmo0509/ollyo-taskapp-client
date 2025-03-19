@@ -11,7 +11,7 @@ export const useTasks = () => {
   const fetchTasks = async () => {
     try {
       const token = useAuthStore.getState().token;
-      const response = await fetch("http://localhost:8000/api/tasks?sort=asc", {
+      const response = await fetch("http://82.25.105.116:8000/api/tasks?sort=asc", {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -33,7 +33,7 @@ export const useTasks = () => {
   const handleTaskStatusChange = async (taskId: number, newStatus: "TODO" | "IN_PROGRESS" | "DONE") => {
     try {
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/${taskId}`, {
+      const response = await fetch(`http://82.25.105.116:8000/api/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

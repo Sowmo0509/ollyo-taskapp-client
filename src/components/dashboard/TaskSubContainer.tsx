@@ -25,7 +25,7 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status, onTaskStat
       try {
         setIsLoading(true);
         const token = useAuthStore.getState().token;
-        const response = await fetch(`http://localhost:8000/api/tasks/search?q=${query}&status=${status}&sort=${sort}`, {
+        const response = await fetch(`http://82.25.105.116:8000/api/tasks/search?q=${query}&status=${status}&sort=${sort}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -67,7 +67,7 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status, onTaskStat
     try {
       setIsLoading(true);
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks?status=${status}&sort=${sortDirection}`, {
+      const response = await fetch(`http://82.25.105.116:8000/api/tasks?status=${status}&sort=${sortDirection}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -116,7 +116,7 @@ const TaskSubContainer = ({ title, tasks = [], onTaskDeleted, status, onTaskStat
       setFilteredTasks(newTasks);
 
       const token = useAuthStore.getState().token;
-      await fetch(`http://localhost:8000/api/tasks/${draggedId}/move`, {
+      await fetch(`http://82.25.105.116:8000/api/tasks/${draggedId}/move`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

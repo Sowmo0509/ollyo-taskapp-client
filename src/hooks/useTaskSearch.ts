@@ -10,7 +10,7 @@ export const useTaskSearch = () => {
   const searchTasks = async (query: string) => {
     try {
       const token = useAuthStore.getState().token;
-      const response = await fetch(`http://localhost:8000/api/tasks/global-search?q=${query}`, {
+      const response = await fetch(`http://82.25.105.116:8000/api/tasks/global-search?q=${query}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",

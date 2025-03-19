@@ -51,7 +51,7 @@ export const useTaskForm = (onSuccess: () => void) => {
     try {
       const validatedData = taskSchema.parse(formData);
       const token = useAuthStore.getState().token;
-      const response = await fetch("http://localhost:8000/api/tasks", {
+      const response = await fetch("http://82.25.105.116:8000/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
