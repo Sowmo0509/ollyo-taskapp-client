@@ -7,8 +7,8 @@
     "dev": "vite --host 0.0.0.0 --port 80",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "pm2 start npm --name taskapp-client -- run dev"
+    "preview": "vite preview --host 0.0.0.0 --port 80",
+    "start": "pm2 start npm --name taskapp-client -- run preview"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.31.0",
