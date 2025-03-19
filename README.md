@@ -1,55 +1,98 @@
-# React + TypeScript + Vite
+# Task Management Application - Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern task management application built with React, TypeScript, and Vite. This application features real-time updates using Laravel Echo and Pusher.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- TypeScript
+- Vite 6
+- TailwindCSS
+- React DnD (Drag and Drop)
+- Zustand (State Management)
+- Laravel Echo & Pusher (Real-time Features)
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (Latest LTS version recommended)
+- PM2 (for production deployment)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Installation
+
+1. Clone the repository
+2. Navigate to the client directory:
+   ```bash
+   cd web/client
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Development
+
+To start the development server:
+
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will be available at `http://localhost:80`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Building for Production
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+1. Build the application:
+
+   ```bash
+   npm run build
+   ```
+
+2. Preview the production build:
+
+   ```bash
+   npm run preview
+   ```
+
+3. For production deployment using PM2:
+   ```bash
+   npm run start
+   ```
+
+## Features
+
+- Modern React with TypeScript for type safety
+- Real-time updates using Laravel Echo and Pusher
+- Drag and Drop functionality for task management
+- State management with Zustand
+- Responsive design with TailwindCSS
+- Icon support with Tabler Icons
+- Form validation with Zod
+
+## Development Tools
+
+- ESLint for code linting
+- TypeScript for static type checking
+- Vite for fast development and building
+- PostCSS and TailwindCSS for styling
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run start` - Start production server with PM2
+- `npm run lint` - Run ESLint
+
+## Project Structure
+
 ```
-# ollyo-taskapp-client
+src/
+  ├── assets/      # Static assets
+  ├── components/  # React components
+  ├── data/        # Data models and constants
+  ├── hooks/       # Custom React hooks
+  ├── services/    # API services
+  ├── store/       # Zustand store
+  ├── types/       # TypeScript types
+  └── utils/       # Utility functions
+```
